@@ -13,53 +13,53 @@ export const DEFAULT_TEMPLATES: WorkoutTemplate[] = [
   {
     id: 'tmpl_push_day',
     category: 'strength',
-    name: 'Push day (chest, shoulders, triceps)',
+    name: '推力日（胸、肩、三头）',
     muscleGroups: ['chest', 'shoulders', 'triceps'],
     isDefault: true,
   },
   {
     id: 'tmpl_pull_day',
     category: 'strength',
-    name: 'Pull day (back, biceps)',
+    name: '拉力日（背、二头）',
     muscleGroups: ['back', 'biceps'],
     isDefault: true,
   },
   {
     id: 'tmpl_leg_day',
     category: 'strength',
-    name: 'Leg day (squats, lunges, calves)',
+    name: '腿部训练（深蹲、弓步、小腿）',
     muscleGroups: ['legs'],
     isDefault: true,
   },
   {
     id: 'tmpl_full_body',
     category: 'strength',
-    name: 'Full body circuit',
+    name: '全身循环训练',
     muscleGroups: ['full_body'],
     isDefault: true,
   },
   {
     id: 'tmpl_run',
     category: 'cardio',
-    name: 'Running / jogging',
+    name: '跑步 / 慢跑',
     muscleGroups: ['legs', 'core'],
   },
   {
     id: 'tmpl_cycling',
     category: 'cardio',
-    name: 'Cycling',
+    name: '骑行',
     muscleGroups: ['legs'],
   },
   {
     id: 'tmpl_yoga',
     category: 'flexibility',
-    name: 'Yoga flow',
+    name: '瑜伽流程',
     muscleGroups: ['full_body'],
   },
   {
     id: 'tmpl_stretching',
     category: 'flexibility',
-    name: 'Stretching routine',
+    name: '拉伸训练',
     muscleGroups: ['full_body'],
   },
 ];
@@ -69,13 +69,13 @@ export const DEFAULT_TEMPLATES: WorkoutTemplate[] = [
 export const DEFAULT_PROFILE: Profile = {
   id: 'default',
   wakeTime: '07:00',
-  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles',
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Shanghai',
   preferredTime: '07:00',
   restDays: ['sunday'],
   goals: [
-    'Work out at least 4 days per week',
-    'Try a new exercise each week',
-    'Improve consistency over intensity',
+    '每周至少锻炼4天',
+    '每周尝试一种新运动',
+    '坚持比强度更重要',
   ],
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -84,39 +84,39 @@ export const DEFAULT_PROFILE: Profile = {
 // ─── Suggested Goals ──────────────────────────────────────────────
 
 export const SUGGESTED_GOALS = [
-  'Work out 4+ days this week',
-  'Hit every muscle group at least once',
-  'Try one new exercise or routine',
-  'Do 10 minutes of stretching after each workout',
-  'Complete a longer cardio session (30+ min)',
-  'Increase weight or reps on one lift',
-  'Do a morning workout instead of evening',
-  'Take proper rest days (no guilt)',
+  '本周锻炼4天以上',
+  '每个肌群至少练一次',
+  '尝试一种新运动或训练',
+  '每次锻炼后拉伸10分钟',
+  '完成一次较长有氧运动（30分钟以上）',
+  '在某项力量训练中增加重量或次数',
+  '改为晨练而非晚间锻炼',
+  '好好休息（不要有负罪感）',
 ];
 
 // ─── Schedule Type Labels ────────────────────────────────────────
 
 export const SCHEDULE_TYPE_LABELS: Record<string, string> = {
-  morning_workout: 'Morning workout',
-  evening_stretch: 'Evening stretch',
+  morning_workout: '晨练',
+  evening_stretch: '晚间拉伸',
 };
 
 // ─── Motivational Copy ──────────────────────────────────────────
 
 export const MOTIVATIONAL_MESSAGES = {
   restDay: [
-    'Rest is part of the plan. Your muscles grow during recovery.',
-    'Active recovery or full rest — both count.',
-    'Rest days build consistency, not guilt.',
+    '休息是计划的一部分，肌肉在恢复中生长。',
+    '主动恢复或完全休息——都算数。',
+    '休息日培养持续性，而非负罪感。',
   ],
   general: [
-    'Consistency beats intensity.',
-    'Every workout counts, no matter how short.',
-    'The best workout is the one you actually do.',
-    'Show up. That\'s the hardest part.',
+    '坚持胜过强度。',
+    '每次锻炼都算数，无论多短。',
+    '最好的锻炼是你真正去做的那个。',
+    '出现就是成功，这是最难的部分。',
   ],
   streak: [
-    'You\'re on a roll. Keep it going.',
-    'Momentum is everything.',
+    '你正在状态，继续保持。',
+    '动力就是一切。',
   ],
 };

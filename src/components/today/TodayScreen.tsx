@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
 import { TabLink } from '@/components/shared/TabLink';
 import { Button } from '@/components/ui/button';
@@ -73,10 +74,10 @@ export function TodayScreen() {
       {/* Date header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="font-display text-3xl tracking-tight">Today</h2>
+          <h2 className="font-display text-3xl tracking-tight">今日</h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {format(now, 'EEEE, MMMM d')}
-            <span className="ml-2 tabular-nums">{format(now, 'h:mm a')}</span>
+            {format(now, 'EEEE, M月d日', { locale: zhCN })}
+            <span className="ml-2 tabular-nums">{format(now, 'HH:mm')}</span>
           </p>
         </div>
         <div className="flex items-center gap-1 -mr-2 pt-1">
@@ -87,7 +88,7 @@ export function TodayScreen() {
               startViewTransition(() => router.push('/export'));
             }}
             className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
-            aria-label="Export"
+            aria-label="导出"
           >
             <Download className="h-[18px] w-[18px]" />
           </button>
@@ -98,7 +99,7 @@ export function TodayScreen() {
               startViewTransition(() => router.push('/settings'));
             }}
             className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
-            aria-label="Settings"
+            aria-label="设置"
           >
             <Settings className="h-[18px] w-[18px]" />
           </button>
@@ -117,7 +118,7 @@ export function TodayScreen() {
               {nextStep.action === 'log_workout' && (
                 <TabLink href="/log?type=workout">
                   <Button size="sm" variant="default" className="rounded-lg">
-                    Log workout now
+                    立即记录锻炼
                   </Button>
                 </TabLink>
               )}
@@ -131,25 +132,25 @@ export function TodayScreen() {
         <TabLink href="/log?type=workout" className="block">
           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-1.5 rounded-xl border-border/60 bg-card shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-200">
             <Dumbbell className="h-5 w-5 text-primary/80" />
-            <span className="text-xs font-medium">Log workout</span>
+            <span className="text-xs font-medium">记录锻炼</span>
           </Button>
         </TabLink>
         <TabLink href="/log?type=rest_day" className="block">
           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-1.5 rounded-xl border-border/60 bg-card shadow-sm hover:shadow-md hover:border-green-400/40 transition-all duration-200">
             <Calendar className="h-5 w-5 text-green-500/80" />
-            <span className="text-xs font-medium">Rest day</span>
+            <span className="text-xs font-medium">休息日</span>
           </Button>
         </TabLink>
         <TabLink href="/timer" className="block">
           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-1.5 rounded-xl border-border/60 bg-card shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-200">
             <Timer className="h-5 w-5 text-primary/80" />
-            <span className="text-xs font-medium">Timer</span>
+            <span className="text-xs font-medium">计时器</span>
           </Button>
         </TabLink>
         <TabLink href="/log?type=note" className="block">
           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-1.5 rounded-xl border-border/60 bg-card shadow-sm hover:shadow-md transition-all duration-200">
             <PenLine className="h-5 w-5 text-muted-foreground" />
-            <span className="text-xs font-medium">Note</span>
+            <span className="text-xs font-medium">笔记</span>
           </Button>
         </TabLink>
       </div>
@@ -158,9 +159,9 @@ export function TodayScreen() {
       <Card className="shadow-sm">
         <CardContent className="p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium">Today&apos;s schedule</h3>
+            <h3 className="text-sm font-medium">今日计划</h3>
             <span className="text-xs text-muted-foreground tabular-nums">
-              {workedOutToday ? 1 : 0}/{enabledSlots.length} sessions
+              {workedOutToday ? 1 : 0}/{enabledSlots.length} 次训练
             </span>
           </div>
           <Progress value={completionPercent} className="h-2" />
@@ -200,19 +201,19 @@ export function TodayScreen() {
         <Card className="shadow-sm">
           <CardContent className="p-3 text-center space-y-1">
             <p className="text-2xl font-semibold tabular-nums tracking-tight">{weekWorkouts}</p>
-            <p className="text-[11px] text-muted-foreground leading-none">This week</p>
+            <p className="text-[11px] text-muted-foreground leading-none">本周</p>
           </CardContent>
         </Card>
         <Card className="shadow-sm">
           <CardContent className="p-3 text-center space-y-1">
             <p className="text-2xl font-semibold tabular-nums tracking-tight">{streak}</p>
-            <p className="text-[11px] text-muted-foreground leading-none">Day streak</p>
+            <p className="text-[11px] text-muted-foreground leading-none">连续天数</p>
           </CardContent>
         </Card>
         <Card className="shadow-sm">
           <CardContent className="p-3 text-center space-y-1">
             <p className="text-2xl font-semibold tabular-nums tracking-tight">{weekMinutes}</p>
-            <p className="text-[11px] text-muted-foreground leading-none">Minutes</p>
+            <p className="text-[11px] text-muted-foreground leading-none">分钟</p>
           </CardContent>
         </Card>
       </div>
@@ -221,7 +222,7 @@ export function TodayScreen() {
       <div className="flex items-center justify-center gap-2 py-3">
         <Activity className="h-3 w-3 text-primary/40" />
         <p className="text-center text-xs text-muted-foreground italic">
-          Consistency beats intensity. Show up and move.
+          持之以恒胜过全力以赴，坚持出现，开始行动。
         </p>
         <Activity className="h-3 w-3 text-primary/40" />
       </div>
@@ -231,7 +232,7 @@ export function TodayScreen() {
 
 function formatTime12(time: string): string {
   const [h, m] = time.split(':').map(Number);
-  const ampm = h >= 12 ? 'PM' : 'AM';
+  const ampm = h >= 12 ? '下午' : '上午';
   const hour = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+  return `${ampm} ${hour}:${m.toString().padStart(2, '0')}`;
 }

@@ -8,11 +8,11 @@ import { useTimer } from '@/hooks/useTimer';
 import { Activity, Play, Square, RotateCcw, CheckCircle2 } from 'lucide-react';
 
 const DURATION_PRESETS = [
-  { label: '5 min', seconds: 5 * 60 },
-  { label: '10 min', seconds: 10 * 60 },
-  { label: '15 min', seconds: 15 * 60 },
-  { label: '30 min', seconds: 30 * 60 },
-  { label: '60 min', seconds: 60 * 60 },
+  { label: '5 分钟', seconds: 5 * 60 },
+  { label: '10 分钟', seconds: 10 * 60 },
+  { label: '15 分钟', seconds: 15 * 60 },
+  { label: '30 分钟', seconds: 30 * 60 },
+  { label: '60 分钟', seconds: 60 * 60 },
 ];
 
 export function TimerScreen() {
@@ -28,14 +28,14 @@ export function TimerScreen() {
         <div className="flex flex-col items-center justify-center gap-6 py-12 animate-fade-in">
           <CheckCircle2 className="h-20 w-20 text-green-600 dark:text-green-400 animate-check-pop" />
           <div className="text-center space-y-2">
-            <h2 className="font-display text-3xl tracking-tight">Time&apos;s up!</h2>
+            <h2 className="font-display text-3xl tracking-tight">时间到！</h2>
             <p className="text-muted-foreground">
-              Great work. You stayed with it for {Math.round(durationSeconds / 60)} minutes.
+              做得好！你坚持了 {Math.round(durationSeconds / 60)} 分钟。
             </p>
           </div>
           <Button onClick={timer.reset} variant="outline" className="rounded-xl">
             <RotateCcw className="mr-2 h-4 w-4" />
-            Start another
+            再来一次
           </Button>
         </div>
       </div>
@@ -45,9 +45,9 @@ export function TimerScreen() {
   return (
     <div className="space-y-6 stagger-children">
       <div className="text-center">
-        <h2 className="font-display text-3xl tracking-tight">Workout timer</h2>
+        <h2 className="font-display text-3xl tracking-tight">锻炼计时器</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Set a duration and focus on your session.
+          设定时长，专注于你的训练。
         </p>
       </div>
 
@@ -85,7 +85,7 @@ export function TimerScreen() {
               {timer.display}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              {timer.isRunning ? 'In progress' : 'Ready'}
+              {timer.isRunning ? '进行中' : '准备就绪'}
             </p>
           </div>
         </div>
@@ -121,12 +121,12 @@ export function TimerScreen() {
         {!timer.isRunning ? (
           <Button onClick={timer.start} size="lg" className="rounded-xl px-8">
             <Play className="mr-2 h-5 w-5" />
-            Start
+            开始
           </Button>
         ) : (
           <Button onClick={timer.stop} size="lg" variant="destructive" className="rounded-xl px-8">
             <Square className="mr-2 h-5 w-5" />
-            Stop
+            停止
           </Button>
         )}
         <Button onClick={timer.reset} size="lg" variant="outline" className="rounded-xl">
@@ -138,7 +138,7 @@ export function TimerScreen() {
       <div className="flex items-center justify-center gap-2 py-3">
         <Activity className="h-3 w-3 text-primary/40" />
         <p className="text-center text-xs text-muted-foreground italic">
-          Every minute counts. Stay present.
+          每一分钟都算数，保持专注。
         </p>
         <Activity className="h-3 w-3 text-primary/40" />
       </div>

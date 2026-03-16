@@ -17,19 +17,19 @@ import {
 import { Plus, Trash2, Dumbbell, Activity } from 'lucide-react';
 
 const CATEGORY_LABELS: Record<WorkoutCategory, string> = {
-  strength: 'Strength',
-  cardio: 'Cardio',
-  flexibility: 'Flexibility',
-  sports: 'Sports',
-  other: 'Other',
+  strength: '力量训练',
+  cardio: '有氧运动',
+  flexibility: '柔韧性',
+  sports: '体育运动',
+  other: '其他',
 };
 
 const CATEGORY_OPTIONS: { value: WorkoutCategory; label: string }[] = [
-  { value: 'strength', label: 'Strength' },
-  { value: 'cardio', label: 'Cardio' },
-  { value: 'flexibility', label: 'Flexibility' },
-  { value: 'sports', label: 'Sports' },
-  { value: 'other', label: 'Other' },
+  { value: 'strength', label: '力量训练' },
+  { value: 'cardio', label: '有氧运动' },
+  { value: 'flexibility', label: '柔韧性' },
+  { value: 'sports', label: '体育运动' },
+  { value: 'other', label: '其他' },
 ];
 
 const MUSCLE_GROUP_OPTIONS = Object.entries(MUSCLE_GROUP_LABELS).map(([value, label]) => ({
@@ -68,14 +68,14 @@ export function TemplatesScreen() {
     <div className="space-y-6 stagger-children">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-3xl tracking-tight">Templates</h2>
+          <h2 className="font-display text-3xl tracking-tight">模板</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            One-tap workouts for quick logging.
+            一键快速记录常用锻炼。
           </p>
         </div>
         <Button size="sm" variant="outline" onClick={() => setShowAdd(!showAdd)} className="rounded-lg">
           <Plus className="mr-1 h-4 w-4" />
-          Add
+          添加
         </Button>
       </div>
 
@@ -84,18 +84,18 @@ export function TemplatesScreen() {
         <Card className="shadow-sm animate-fade-in">
           <CardContent className="p-4 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="tmplName">Name</Label>
+              <Label htmlFor="tmplName">名称</Label>
               <Input
                 id="tmplName"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                placeholder="e.g., Morning HIIT, Yoga flow"
+                placeholder="例如：晨间HIIT、瑜伽流程"
                 className="rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>分类</Label>
               <div className="flex flex-wrap gap-2">
                 {CATEGORY_OPTIONS.map((opt) => (
                   <button key={opt.value} type="button" onClick={() => setNewCategory(opt.value)}>
@@ -113,7 +113,7 @@ export function TemplatesScreen() {
             </div>
 
             <TagSelector
-              label="Muscle groups"
+              label="训练肌群"
               options={MUSCLE_GROUP_OPTIONS}
               selected={newMuscleGroups}
               onChange={setNewMuscleGroups}
@@ -121,10 +121,10 @@ export function TemplatesScreen() {
 
             <div className="flex gap-2">
               <Button onClick={handleAdd} size="sm" disabled={!newName.trim()} className="rounded-lg">
-                Add template
+                添加模板
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setShowAdd(false)} className="rounded-lg">
-                Cancel
+                取消
               </Button>
             </div>
           </CardContent>
@@ -164,7 +164,7 @@ export function TemplatesScreen() {
                         variant="ghost"
                         size="sm"
                         onClick={() => deleteTemplate(tmpl.id)}
-                        aria-label={`Delete ${tmpl.name}`}
+                        aria-label={`删除 ${tmpl.name}`}
                         className="rounded-lg"
                       >
                         <Trash2 className="h-4 w-4 text-muted-foreground" />
@@ -184,14 +184,14 @@ export function TemplatesScreen() {
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted/60">
             <Dumbbell className="h-10 w-10 text-muted-foreground/50" />
           </div>
-          <p className="text-sm text-muted-foreground">No templates yet. Add your go-to workouts above.</p>
+          <p className="text-sm text-muted-foreground">暂无模板。在上面添加你的常用锻炼。</p>
         </div>
       )}
 
       <div className="flex items-center justify-center gap-2 py-3">
         <Activity className="h-3 w-3 text-primary/40" />
         <p className="text-center text-xs text-muted-foreground italic">
-          Templates reduce friction. Less thinking, more doing.
+          模板减少阻力，少想多做。
         </p>
         <Activity className="h-3 w-3 text-primary/40" />
       </div>

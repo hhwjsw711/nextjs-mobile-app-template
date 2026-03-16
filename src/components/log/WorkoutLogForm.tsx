@@ -22,11 +22,11 @@ import {
 import { CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 
 const CATEGORY_OPTIONS: { value: WorkoutCategory; label: string }[] = [
-  { value: 'strength', label: 'Strength' },
-  { value: 'cardio', label: 'Cardio' },
-  { value: 'flexibility', label: 'Flexibility' },
-  { value: 'sports', label: 'Sports' },
-  { value: 'other', label: 'Other' },
+  { value: 'strength', label: '力量训练' },
+  { value: 'cardio', label: '有氧运动' },
+  { value: 'flexibility', label: '柔韧性' },
+  { value: 'sports', label: '体育运动' },
+  { value: 'other', label: '其他' },
 ];
 
 const MUSCLE_GROUP_OPTIONS = Object.entries(MUSCLE_GROUP_LABELS).map(([value, label]) => ({
@@ -94,8 +94,8 @@ export function WorkoutLogForm({ onComplete }: WorkoutLogFormProps) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-16 animate-fade-in">
         <CheckCircle2 className="h-14 w-14 text-green-600 dark:text-green-400 animate-check-pop" />
-        <p className="font-display text-xl">Workout logged</p>
-        <p className="text-sm text-muted-foreground">Keep up the great work.</p>
+        <p className="font-display text-xl">锻炼已记录</p>
+        <p className="text-sm text-muted-foreground">继续保持，做得很好。</p>
       </div>
     );
   }
@@ -103,8 +103,8 @@ export function WorkoutLogForm({ onComplete }: WorkoutLogFormProps) {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="font-display text-2xl tracking-tight">Log workout</h2>
-        <p className="text-sm text-muted-foreground mt-1">Track what you did.</p>
+        <h2 className="font-display text-2xl tracking-tight">记录锻炼</h2>
+        <p className="text-sm text-muted-foreground mt-1">记录你做了什么。</p>
       </div>
 
       <WhenPicker value={when} onChange={setWhen} />
@@ -128,7 +128,7 @@ export function WorkoutLogForm({ onComplete }: WorkoutLogFormProps) {
       {/* Template quick-pick */}
       {relevantTemplates.length > 0 && (
         <div className="space-y-2.5">
-          <p className="text-sm font-medium text-muted-foreground">Quick pick</p>
+          <p className="text-sm font-medium text-muted-foreground">快速选择</p>
           <div className="grid gap-2">
             {relevantTemplates.map((tmpl) => (
               <button
@@ -159,35 +159,35 @@ export function WorkoutLogForm({ onComplete }: WorkoutLogFormProps) {
 
       {/* Name */}
       <div className="space-y-2">
-        <Label htmlFor="workoutName">Workout name</Label>
+        <Label htmlFor="workoutName">锻炼名称</Label>
         <Input
           id="workoutName"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g., Morning run, Push day"
+          placeholder="例如：晨跑、推力训练"
           className="rounded-lg"
         />
       </div>
 
       {/* Duration slider */}
       <SliderField
-        label="Duration (minutes)"
+        label="时长（分钟）"
         value={durationMinutes}
         onChange={setDurationMinutes}
         min={0}
         max={120}
         step={5}
-        description="0 = not tracked"
+        description="0 = 未记录"
       />
 
       {/* Effort slider */}
       <SliderField
-        label="Effort level"
+        label="努力程度"
         value={effort}
         onChange={setEffort}
         min={1}
         max={10}
-        description="1 = easy, 10 = max effort"
+        description="1 = 轻松，10 = 全力以赴"
       />
 
       {/* More details toggle */}
@@ -197,32 +197,32 @@ export function WorkoutLogForm({ onComplete }: WorkoutLogFormProps) {
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         {showMore ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        {showMore ? 'Less details' : 'More details (optional)'}
+        {showMore ? '收起详情' : '更多详情（可选）'}
       </button>
 
       {showMore && (
         <div className="space-y-4 animate-fade-in">
           <TagSelector
-            label="Muscle groups"
+            label="训练肌群"
             options={MUSCLE_GROUP_OPTIONS}
             selected={muscleGroups}
             onChange={setMuscleGroups}
           />
 
           <TagSelector
-            label="How are you feeling?"
+            label="你现在感觉如何？"
             options={MOOD_TAG_OPTIONS}
             selected={tags}
             onChange={setTags}
           />
 
           <div className="space-y-2">
-            <Label htmlFor="workoutNotes">Notes</Label>
+            <Label htmlFor="workoutNotes">备注</Label>
             <Textarea
               id="workoutNotes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Optional notes about this workout"
+              placeholder="关于这次锻炼的备注（可选）"
               rows={2}
               className="rounded-lg"
             />
@@ -231,7 +231,7 @@ export function WorkoutLogForm({ onComplete }: WorkoutLogFormProps) {
       )}
 
       <Button onClick={handleSubmit} className="w-full rounded-xl" size="lg" disabled={!name.trim()}>
-        Log workout
+        记录锻炼
       </Button>
     </div>
   );

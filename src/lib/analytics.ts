@@ -169,7 +169,7 @@ export function generateInsights(review: Omit<WeeklyReview, 'id' | 'notes' | 'cr
   if (review.workoutCount >= 4) {
     insights.push({
       type: 'improvement',
-      message: `Great week! ${review.workoutCount} workouts logged.`,
+      message: `很棒的一周！记录了 ${review.workoutCount} 次锻炼。`,
       priority: 2,
     });
   }
@@ -177,7 +177,7 @@ export function generateInsights(review: Omit<WeeklyReview, 'id' | 'notes' | 'cr
   if (review.workoutCount < 3 && review.workoutCount > 0) {
     insights.push({
       type: 'suggestion',
-      message: `Only ${review.workoutCount} workout${review.workoutCount !== 1 ? 's' : ''} this week. Can you fit in one more?`,
+      message: `本周只有 ${review.workoutCount} 次锻炼。能再加一次吗？`,
       priority: 1,
     });
   }
@@ -185,7 +185,7 @@ export function generateInsights(review: Omit<WeeklyReview, 'id' | 'notes' | 'cr
   if (review.workoutCount === 0) {
     insights.push({
       type: 'pattern',
-      message: 'No workouts logged this week. Even a short session counts.',
+      message: '本周没有记录锻炼。即使短时间的训练也算数。',
       priority: 1,
     });
   }
@@ -196,7 +196,7 @@ export function generateInsights(review: Omit<WeeklyReview, 'id' | 'notes' | 'cr
   if (activeMuscles.length === 1 && review.workoutCount >= 3) {
     insights.push({
       type: 'suggestion',
-      message: 'You focused on one muscle group all week. Try mixing it up for balance.',
+      message: '你这周只专注于一个肌群。试着混合训练以保持平衡。',
       priority: 3,
     });
   }
@@ -205,7 +205,7 @@ export function generateInsights(review: Omit<WeeklyReview, 'id' | 'notes' | 'cr
   if (review.categoryBreakdown.strength > 0 && review.categoryBreakdown.cardio === 0 && review.workoutCount >= 3) {
     insights.push({
       type: 'suggestion',
-      message: 'All strength, no cardio. Consider adding a short run or bike ride.',
+      message: '全是力量训练，没有有氧。考虑增加一次短跑或骑行。',
       priority: 4,
     });
   }
@@ -213,7 +213,7 @@ export function generateInsights(review: Omit<WeeklyReview, 'id' | 'notes' | 'cr
   if (review.categoryBreakdown.cardio > 0 && review.categoryBreakdown.strength === 0 && review.workoutCount >= 3) {
     insights.push({
       type: 'suggestion',
-      message: 'All cardio, no strength. Try adding a bodyweight or weight session.',
+      message: '全是有氧运动，没有力量训练。试着增加一次自重或力量训练。',
       priority: 4,
     });
   }
@@ -221,7 +221,7 @@ export function generateInsights(review: Omit<WeeklyReview, 'id' | 'notes' | 'cr
   if (review.avgEffort && review.avgEffort >= 8) {
     insights.push({
       type: 'pattern',
-      message: `High average effort (${review.avgEffort.toFixed(1)}/10). Make sure you're recovering properly.`,
+      message: `平均努力程度较高（${review.avgEffort.toFixed(1)}/10）。确保充分恢复。`,
       priority: 3,
     });
   }
@@ -242,14 +242,14 @@ export function getNextHelpfulStep(
 
   if (todayWorkouts.length > 0) {
     return {
-      message: `You've already worked out today. Nice work! Log another or rest.`,
+      message: `你今天已经锻炼过了。干得漂亮！可以再练一次或休息。`,
       urgent: false,
     };
   }
 
   if (todayHasRestDay) {
     return {
-      message: 'Rest day logged. Recovery is part of the plan.',
+      message: '已记录休息日。休息也是计划的一部分。',
       urgent: false,
     };
   }
@@ -261,14 +261,14 @@ export function getNextHelpfulStep(
 
   if (nextSlot) {
     return {
-      message: `Your next scheduled session is at ${formatTime12(nextSlot.time)}. Ready?`,
+      message: `你的下一次计划训练在 ${formatTime12(nextSlot.time)}。准备好了吗？`,
       action: 'log_workout',
       urgent: false,
     };
   }
 
   return {
-    message: 'No workout logged yet today. Get after it!',
+    message: '今天还没有记录锻炼。开始行动吧！',
     action: 'log_workout',
     urgent: true,
   };
@@ -276,7 +276,7 @@ export function getNextHelpfulStep(
 
 function formatTime12(time: string): string {
   const [h, m] = time.split(':').map(Number);
-  const ampm = h >= 12 ? 'PM' : 'AM';
+  const ampm = h >= 12 ? '下午' : '上午';
   const hour = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+  return `${ampm} ${hour}:${m.toString().padStart(2, '0')}`;
 }

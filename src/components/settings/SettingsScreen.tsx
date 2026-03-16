@@ -21,7 +21,7 @@ export function SettingsScreen() {
   const [showDanger, setShowDanger] = useState(false);
 
   const handleClearData = async () => {
-    if (window.confirm('This will delete ALL your data. This cannot be undone. Are you sure?')) {
+    if (window.confirm('这将删除所有数据，此操作无法撤销。确定要继续吗？')) {
       await client.import({ action: 'clear' });
       window.location.reload();
     }
@@ -30,7 +30,7 @@ export function SettingsScreen() {
   const handleResetAll = async () => {
     if (
       window.confirm(
-        'This will delete ALL data and reset the app to its initial state. Are you sure?'
+        '这将删除所有数据并将应用重置为初始状态。确定要继续吗？'
       )
     ) {
       await client.import({ action: 'reset' });
@@ -41,21 +41,21 @@ export function SettingsScreen() {
   return (
     <div className="space-y-6 stagger-children">
       <div>
-        <h2 className="font-display text-3xl tracking-tight">Settings</h2>
+        <h2 className="font-display text-3xl tracking-tight">设置</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Customize your schedule and preferences.
+          自定义你的计划和偏好。
         </p>
       </div>
 
       {/* Appearance */}
       <Card className="shadow-sm">
         <CardContent className="p-4 space-y-4">
-          <h3 className="text-sm font-medium">Appearance</h3>
+          <h3 className="text-sm font-medium">外观</h3>
           <div className="flex gap-2">
             {([
-              { value: 'system' as const, label: 'System', icon: Monitor },
-              { value: 'light' as const, label: 'Light', icon: Sun },
-              { value: 'dark' as const, label: 'Dark', icon: Moon },
+              { value: 'system' as const, label: '跟随系统', icon: Monitor },
+              { value: 'light' as const, label: '浅色', icon: Sun },
+              { value: 'dark' as const, label: '深色', icon: Moon },
             ]).map(({ value, label, icon: Icon }) => (
               <button
                 key={value}
@@ -79,14 +79,14 @@ export function SettingsScreen() {
       <Card className="shadow-sm">
         <CardContent className="p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium">Schedule</h3>
+            <h3 className="text-sm font-medium">计划</h3>
             <Button variant="ghost" size="sm" onClick={resetSchedule} className="rounded-lg text-xs">
-              Reset to defaults
+              恢复默认
             </Button>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="wakeTime">Wake time</Label>
+            <Label htmlFor="wakeTime">起床时间</Label>
             <Input
               id="wakeTime"
               type="time"
@@ -105,7 +105,7 @@ export function SettingsScreen() {
                   <Switch
                     checked={slot.enabled}
                     onCheckedChange={(checked) => updateSlot(i, { enabled: checked })}
-                    aria-label={`Enable ${SCHEDULE_TYPE_LABELS[slot.type] || slot.type}`}
+                    aria-label={`启用 ${SCHEDULE_TYPE_LABELS[slot.type] || slot.type}`}
                   />
                   <span className="text-sm">
                     {SCHEDULE_TYPE_LABELS[slot.type] || slot.type}
@@ -127,27 +127,27 @@ export function SettingsScreen() {
       {/* Privacy */}
       <Card className="shadow-sm">
         <CardContent className="p-4 space-y-3">
-          <h3 className="text-sm font-medium">Privacy</h3>
+          <h3 className="text-sm font-medium">隐私</h3>
           <ul className="text-xs text-muted-foreground space-y-1.5 leading-relaxed">
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/40 shrink-0" />
-              All data is stored locally on this device.
+              所有数据均存储在本地设备上。
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/40 shrink-0" />
-              No account required.
+              无需注册账户。
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/40 shrink-0" />
-              No analytics, telemetry, or tracking.
+              无分析、遥测或跟踪。
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/40 shrink-0" />
-              No network requests are made by the core app.
+              核心应用不会发起网络请求。
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/40 shrink-0" />
-              Export your data anytime from the Export page.
+              随时可在导出页面导出你的数据。
             </li>
           </ul>
         </CardContent>
@@ -161,7 +161,7 @@ export function SettingsScreen() {
             className="flex items-center gap-2.5 text-sm font-medium text-red-600 dark:text-red-400"
           >
             <AlertTriangle className="h-4 w-4" />
-            Data management
+            数据管理
           </button>
 
           {showDanger && (
@@ -173,7 +173,7 @@ export function SettingsScreen() {
                 className="text-red-600 border-red-200/60 dark:text-red-400 dark:border-red-900/40 rounded-lg"
               >
                 <Trash2 className="mr-1.5 h-3 w-3" />
-                Clear all logs (keep settings)
+                清除所有记录（保留设置）
               </Button>
               <Button
                 variant="outline"
@@ -182,10 +182,10 @@ export function SettingsScreen() {
                 className="text-red-600 border-red-200/60 dark:text-red-400 dark:border-red-900/40 rounded-lg"
               >
                 <Trash2 className="mr-1.5 h-3 w-3" />
-                Reset entire app
+                重置整个应用
               </Button>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                These actions cannot be undone. Export your data first.
+                这些操作无法撤销，请先导出数据。
               </p>
             </div>
           )}

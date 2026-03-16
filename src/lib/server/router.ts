@@ -250,18 +250,18 @@ const importData = os
   .handler(async ({ input }) => {
     if (input.action === 'clear') {
       dao.clearAllEvents();
-      return { ok: true as const, message: 'All logs cleared.' };
+      return { ok: true as const, message: '所有记录已清除。' };
     }
 
     if (input.action === 'reset') {
       dao.resetAll();
-      return { ok: true as const, message: 'App reset.' };
+      return { ok: true as const, message: '应用已重置。' };
     }
 
     // Import data
     const data = input.data;
     if (!data?.schemaVersion || !data?.events) {
-      throw new Error('Invalid export format.');
+      throw new Error('导出格式无效。');
     }
 
     if (data.profile) {
@@ -304,7 +304,7 @@ const importData = os
       }
     }
 
-    return { ok: true as const, message: `Imported ${data.events.length} events.` };
+    return { ok: true as const, message: `已导入 ${data.events.length} 条记录。` };
   });
 
 // ─── Router ───────────────────────────────────────────────────────

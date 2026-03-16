@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { format, startOfWeek, endOfWeek, subWeeks } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,11 +27,11 @@ import {
 } from 'lucide-react';
 
 const CATEGORY_LABELS: Record<WorkoutCategory, string> = {
-  strength: 'Strength',
-  cardio: 'Cardio',
-  flexibility: 'Flexibility',
-  sports: 'Sports',
-  other: 'Other',
+  strength: '力量训练',
+  cardio: '有氧运动',
+  flexibility: '柔韧性',
+  sports: '体育运动',
+  other: '其他',
 };
 
 export function HistoryScreen() {
@@ -72,9 +73,9 @@ export function HistoryScreen() {
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <div className="text-center">
-          <h2 className="font-display text-2xl tracking-tight">Weekly review</h2>
+          <h2 className="font-display text-2xl tracking-tight">每周回顾</h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {format(weekStart, 'MMM d')} &mdash; {format(weekEnd, 'MMM d, yyyy')}
+            {format(weekStart, 'M月d日', { locale: zhCN })} &mdash; {format(weekEnd, 'M月d日', { locale: zhCN })}
           </p>
         </div>
         <Button
@@ -93,19 +94,19 @@ export function HistoryScreen() {
         <Card className="shadow-sm">
           <CardContent className="p-3 text-center space-y-1">
             <p className="text-2xl font-semibold tabular-nums tracking-tight">{review.workoutCount}</p>
-            <p className="text-[11px] text-muted-foreground leading-none">Workouts</p>
+            <p className="text-[11px] text-muted-foreground leading-none">锻炼次数</p>
           </CardContent>
         </Card>
         <Card className="shadow-sm">
           <CardContent className="p-3 text-center space-y-1">
             <p className="text-2xl font-semibold tabular-nums tracking-tight">{review.restDayCount}</p>
-            <p className="text-[11px] text-muted-foreground leading-none">Rest days</p>
+            <p className="text-[11px] text-muted-foreground leading-none">休息日</p>
           </CardContent>
         </Card>
         <Card className="shadow-sm">
           <CardContent className="p-3 text-center space-y-1">
             <p className="text-2xl font-semibold tabular-nums tracking-tight">{review.totalMinutes}</p>
-            <p className="text-[11px] text-muted-foreground leading-none">Minutes</p>
+            <p className="text-[11px] text-muted-foreground leading-none">分钟</p>
           </CardContent>
         </Card>
       </div>
@@ -115,7 +116,7 @@ export function HistoryScreen() {
         <Card className="shadow-sm">
           <CardContent className="p-4 space-y-2.5">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">Average effort</h3>
+              <h3 className="text-sm font-medium">平均努力程度</h3>
               <span className="text-sm font-semibold tabular-nums">{review.avgEffort.toFixed(1)}/10</span>
             </div>
             <Progress value={review.avgEffort * 10} className="h-1.5" />
@@ -127,7 +128,7 @@ export function HistoryScreen() {
       {activeCategories.length > 0 && (
         <Card className="shadow-sm">
           <CardContent className="p-4 space-y-3">
-            <h3 className="text-sm font-medium">Category breakdown</h3>
+            <h3 className="text-sm font-medium">分类统计</h3>
             <div className="space-y-2.5">
               {activeCategories.map(([cat, count]) => {
                 const percent = Math.round((count / review.workoutCount) * 100);
@@ -152,7 +153,7 @@ export function HistoryScreen() {
       {activeMuscleGroups.length > 0 && (
         <Card className="shadow-sm">
           <CardContent className="p-4 space-y-3">
-            <h3 className="text-sm font-medium">Muscle groups hit</h3>
+            <h3 className="text-sm font-medium">训练肌群</h3>
             <div className="flex flex-wrap gap-2">
               {activeMuscleGroups.map(([mg, count]) => (
                 <Badge key={mg} variant="secondary" className="rounded-md">
@@ -168,7 +169,7 @@ export function HistoryScreen() {
       {review.commonTags.length > 0 && (
         <Card className="shadow-sm">
           <CardContent className="p-4 space-y-2.5">
-            <h3 className="text-sm font-medium">How you felt</h3>
+            <h3 className="text-sm font-medium">你的感受</h3>
             <div className="flex flex-wrap gap-2">
               {review.commonTags.map((tag) => (
                 <Badge key={tag} variant="secondary" className="rounded-md">
@@ -188,8 +189,8 @@ export function HistoryScreen() {
               <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
             </div>
             <p className="text-sm leading-relaxed">
-              {review.streakDays} active day{review.streakDays !== 1 ? 's' : ''} this week.
-              {review.streakDays >= 5 ? ' Outstanding consistency!' : ' Keep building momentum.'}
+              本周 {review.streakDays} 个活跃天。
+              {review.streakDays >= 5 ? ' 出色的坚持！' : ' 继续保持动力。'}
             </p>
           </CardContent>
         </Card>
@@ -200,7 +201,7 @@ export function HistoryScreen() {
         <div className="space-y-2.5">
           <h3 className="text-sm font-medium flex items-center gap-2">
             <Lightbulb className="h-4 w-4 text-amber-500" />
-            Insights
+            洞察
           </h3>
           {insights.map((insight, i) => (
             <Card key={i} className="shadow-sm">
@@ -234,7 +235,7 @@ export function HistoryScreen() {
             <BarChart3 className="h-10 w-10 text-muted-foreground/50" />
           </div>
           <p className="text-sm text-muted-foreground">
-            No data yet. Start logging workouts to see your patterns.
+            暂无数据。开始记录锻炼来查看你的规律。
           </p>
         </div>
       )}
@@ -242,7 +243,7 @@ export function HistoryScreen() {
       <div className="flex items-center justify-center gap-2 py-3">
         <Activity className="h-3 w-3 text-primary/40" />
         <p className="text-center text-xs text-muted-foreground italic">
-          Progress = consistency over time, not perfection.
+          进步 = 长期坚持，而非完美。
         </p>
         <Activity className="h-3 w-3 text-primary/40" />
       </div>

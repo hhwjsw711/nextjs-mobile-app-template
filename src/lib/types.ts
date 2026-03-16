@@ -16,14 +16,14 @@ export type MuscleGroup =
   | 'full_body';
 
 export const MUSCLE_GROUP_LABELS: Record<MuscleGroup, string> = {
-  chest: 'Chest',
-  back: 'Back',
-  shoulders: 'Shoulders',
-  biceps: 'Biceps',
-  triceps: 'Triceps',
-  legs: 'Legs',
-  core: 'Core',
-  full_body: 'Full body',
+  chest: '胸部',
+  back: '背部',
+  shoulders: '肩部',
+  biceps: '肱二头肌',
+  triceps: '肱三头肌',
+  legs: '腿部',
+  core: '核心',
+  full_body: '全身',
 };
 
 export type MoodTag =
@@ -37,14 +37,14 @@ export type MoodTag =
   | 'other';
 
 export const MOOD_TAG_LABELS: Record<MoodTag, string> = {
-  energized: 'Energized',
-  tired: 'Tired',
-  sore: 'Sore',
-  motivated: 'Motivated',
-  stressed: 'Stressed',
-  relaxed: 'Relaxed',
-  rushed: 'Rushed',
-  other: 'Other',
+  energized: '精力充沛',
+  tired: '疲惫',
+  sore: '酸痛',
+  motivated: '有动力',
+  stressed: '压力大',
+  relaxed: '放松',
+  rushed: '匆忙',
+  other: '其他',
 };
 
 export interface ScheduleSlot {

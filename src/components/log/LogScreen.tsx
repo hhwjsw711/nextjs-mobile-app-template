@@ -10,9 +10,9 @@ import { useTabNavigation } from '@/components/shared/TabContext';
 type LogType = 'workout' | 'rest_day' | 'note';
 
 const LOG_OPTIONS: { value: LogType; label: string }[] = [
-  { value: 'workout', label: 'Workout' },
-  { value: 'rest_day', label: 'Rest day' },
-  { value: 'note', label: 'Note' },
+  { value: 'workout', label: '锻炼' },
+  { value: 'rest_day', label: '休息日' },
+  { value: 'note', label: '笔记' },
 ];
 
 export function LogScreen() {

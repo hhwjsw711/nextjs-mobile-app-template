@@ -18,12 +18,12 @@ import { HapticsProvider, useHaptics } from '@/components/shared/HapticsProvider
 import { useTabNavigation, type TabRoute } from '@/components/shared/TabContext';
 
 const NAV_ITEMS: { tab: TabRoute; label: string; icon: typeof Home }[] = [
-  { tab: '/', label: 'Today', icon: Home },
-  { tab: '/log', label: 'Log', icon: PenLine },
-  { tab: '/timer', label: 'Timer', icon: Timer },
-  { tab: '/history', label: 'History', icon: BarChart3 },
-  { tab: '/templates', label: 'Templates', icon: Dumbbell },
-  { tab: '/goals', label: 'Goals', icon: Target },
+  { tab: '/', label: '今日', icon: Home },
+  { tab: '/log', label: '记录', icon: PenLine },
+  { tab: '/timer', label: '计时器', icon: Timer },
+  { tab: '/history', label: '历史', icon: BarChart3 },
+  { tab: '/templates', label: '模板', icon: Dumbbell },
+  { tab: '/goals', label: '目标', icon: Target },
 ];
 
 
@@ -83,7 +83,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 className="flex items-center gap-1.5 rounded-xl px-3 py-2.5 min-h-[44px] text-sm font-medium text-primary transition-colors hover:bg-accent/60 active:bg-accent"
               >
                 <ChevronLeft className="h-5 w-5" />
-                <span>Back</span>
+                <span>返回</span>
               </Link>
             </div>
           </header>
@@ -181,7 +181,7 @@ function BottomNav({ navItems, isTabbed, tabCtx, onBackClick }: BottomNavProps) 
       ref={navRef}
       className="shrink-0 z-40 border-t border-border/60 bg-background/80 backdrop-blur-xl touch-none"
       role="navigation"
-      aria-label="Main navigation"
+      aria-label="主导航"
       style={{
         paddingLeft: 'env(safe-area-inset-left)',
         paddingRight: 'env(safe-area-inset-right)',

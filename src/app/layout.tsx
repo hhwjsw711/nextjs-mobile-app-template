@@ -22,13 +22,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Workout Tracker',
-  description: 'Track workouts, set goals, analyze patterns.',
+  title: '健身追踪',
+  description: '记录锻炼、设定目标、分析规律。',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Workouts',
+    title: '健身',
   },
 };
 
@@ -49,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning>
       <head>
         {/* Apply theme synchronously to prevent flash of wrong theme */}
         <script

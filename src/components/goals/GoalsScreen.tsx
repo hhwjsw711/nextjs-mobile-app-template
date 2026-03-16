@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -44,7 +45,7 @@ export function GoalsScreen() {
   };
 
   const handleCompleteGoal = async (id: string) => {
-    await completeGoal(id, outcomeText || 'Completed');
+    await completeGoal(id, outcomeText || '已完成');
     setCompletingId(null);
     setOutcomeText('');
   };
@@ -58,15 +59,15 @@ export function GoalsScreen() {
     <div className="space-y-6 stagger-children">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-3xl tracking-tight">Goals</h2>
+          <h2 className="font-display text-3xl tracking-tight">目标</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Focus on 1-2 goals at a time.
+            专注于1-2个目标。
           </p>
         </div>
         {activeGoals.length < 2 && (
           <Button size="sm" variant="outline" onClick={() => setShowAdd(!showAdd)} className="rounded-lg">
             <Plus className="mr-1 h-4 w-4" />
-            Add
+            添加
           </Button>
         )}
       </div>
@@ -75,7 +76,7 @@ export function GoalsScreen() {
       {activeGoals.length > 0 && (
         <div className="space-y-2.5">
           <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Active goals ({activeGoals.length}/2)
+            活跃目标 ({activeGoals.length}/2)
           </h3>
           {activeGoals.map((goal) => (
             <Card key={goal.id} className="border-primary/20 shadow-sm">
@@ -85,8 +86,8 @@ export function GoalsScreen() {
                   <div className="flex-1">
                     <p className="text-sm font-medium">{goal.description}</p>
                     <p className="text-xs text-muted-foreground mt-1 tabular-nums">
-                      {format(new Date(goal.startDate), 'MMM d')} &mdash;{' '}
-                      {format(new Date(goal.endDate), 'MMM d, yyyy')}
+                      {format(new Date(goal.startDate), 'M月d日', { locale: zhCN })} &mdash;{' '}
+                      {format(new Date(goal.endDate), 'M月d日', { locale: zhCN })}
                     </p>
                   </div>
                 </div>
@@ -94,12 +95,12 @@ export function GoalsScreen() {
                 {completingId === goal.id ? (
                   <div className="space-y-3 animate-fade-in">
                     <div className="space-y-2">
-                      <Label htmlFor={`outcome-${goal.id}`}>How did it go?</Label>
+                      <Label htmlFor={`outcome-${goal.id}`}>完成得怎么样？</Label>
                       <Textarea
                         id={`outcome-${goal.id}`}
                         value={outcomeText}
                         onChange={(e) => setOutcomeText(e.target.value)}
-                        placeholder="e.g., Hit 4 out of 5 days, felt great"
+                        placeholder="例如：完成了5天中的4天，感觉很好"
                         rows={2}
                         className="rounded-lg"
                       />
@@ -111,7 +112,7 @@ export function GoalsScreen() {
                         className="rounded-lg"
                       >
                         <CheckCircle2 className="mr-1.5 h-3 w-3" />
-                        Complete
+                        完成
                       </Button>
                       <Button
                         size="sm"
@@ -122,7 +123,7 @@ export function GoalsScreen() {
                         }}
                         className="rounded-lg"
                       >
-                        Cancel
+                        取消
                       </Button>
                     </div>
                   </div>
@@ -134,7 +135,7 @@ export function GoalsScreen() {
                       onClick={() => setCompletingId(goal.id)}
                       className="rounded-lg"
                     >
-                      Mark complete
+                      标记完成
                     </Button>
                     <Button
                       size="sm"
@@ -157,21 +158,21 @@ export function GoalsScreen() {
         <Card className="shadow-sm animate-fade-in">
           <CardContent className="p-4 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="newGoal">New goal</Label>
+              <Label htmlFor="newGoal">新目标</Label>
               <Input
                 id="newGoal"
                 value={newGoal}
                 onChange={(e) => setNewGoal(e.target.value)}
-                placeholder="e.g., Run 3 times this week"
+                placeholder="例如：本周跑步3次"
                 className="rounded-lg"
               />
             </div>
             <div className="flex gap-2">
               <Button onClick={handleAddGoal} size="sm" disabled={!newGoal.trim()} className="rounded-lg">
-                Add goal
+                添加目标
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setShowAdd(false)} className="rounded-lg">
-                Cancel
+                取消
               </Button>
             </div>
           </CardContent>
@@ -182,7 +183,7 @@ export function GoalsScreen() {
       {activeGoals.length < 2 && availableSuggestions.length > 0 && (
         <div className="space-y-2.5">
           <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Suggestions
+            建议
           </h3>
           <div className="grid gap-2">
             {availableSuggestions.slice(0, 4).map((suggestion) => (
@@ -211,7 +212,7 @@ export function GoalsScreen() {
             className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors"
           >
             {showPast ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-            Past goals ({pastGoals.length})
+            已完成目标 ({pastGoals.length})
           </button>
 
           {showPast && (
@@ -227,8 +228,8 @@ export function GoalsScreen() {
                           <p className="text-xs text-muted-foreground mt-1 italic">{goal.outcome}</p>
                         )}
                         <p className="text-xs text-muted-foreground mt-1 tabular-nums">
-                          {format(new Date(goal.startDate), 'MMM d')} &mdash;{' '}
-                          {format(new Date(goal.endDate), 'MMM d')}
+                          {format(new Date(goal.startDate), 'M月d日', { locale: zhCN })} &mdash;{' '}
+                          {format(new Date(goal.endDate), 'M月d日', { locale: zhCN })}
                         </p>
                       </div>
                     </div>
@@ -247,7 +248,7 @@ export function GoalsScreen() {
             <Target className="h-10 w-10 text-muted-foreground/50" />
           </div>
           <p className="text-sm text-muted-foreground">
-            No goals yet. Pick one from the suggestions or add your own.
+            暂无目标。从建议中选择一个或添加你自己的。
           </p>
         </div>
       )}
@@ -255,7 +256,7 @@ export function GoalsScreen() {
       <div className="flex items-center justify-center gap-2 py-3">
         <Activity className="h-3 w-3 text-primary/40" />
         <p className="text-center text-xs text-muted-foreground italic">
-          Small, focused goals drive the biggest changes.
+          小而专注的目标带来最大的改变。
         </p>
         <Activity className="h-3 w-3 text-primary/40" />
       </div>

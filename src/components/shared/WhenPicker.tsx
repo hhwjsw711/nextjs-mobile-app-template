@@ -54,7 +54,7 @@ export function WhenPicker({ value, onChange }: WhenPickerProps) {
         className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
       >
         <Clock className="h-3.5 w-3.5" />
-        {custom ? 'Custom time' : 'Now'}
+        {custom ? '自定义时间' : '现在'}
       </button>
 
       {custom && (

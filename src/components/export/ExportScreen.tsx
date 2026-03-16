@@ -44,9 +44,9 @@ export function ExportScreen() {
     try {
       const data = await client.export({});
       downloadJSON(data, `workout-export-${format(new Date(), 'yyyy-MM-dd')}.json`);
-      setStatus('Full export downloaded.');
+      setStatus('完整导出已下载。');
     } catch {
-      setStatus('Export failed.');
+      setStatus('导出失败。');
     }
   };
 
@@ -54,9 +54,9 @@ export function ExportScreen() {
     try {
       const data = await client.export({});
       await copyToClipboard(JSON.stringify(data, null, 2));
-      setStatus('Full JSON copied to clipboard.');
+      setStatus('完整JSON已复制到剪贴板。');
     } catch {
-      setStatus('Copy failed.');
+      setStatus('复制失败。');
     }
   };
 
@@ -70,7 +70,7 @@ export function ExportScreen() {
         setImportText('');
       }
     } catch {
-      setStatus('Invalid JSON. Please check the format.');
+      setStatus('JSON格式无效，请检查格式。');
     }
   };
 
@@ -85,22 +85,22 @@ export function ExportScreen() {
         const result = await client.import({ action: 'import', data });
         setStatus(result.message);
       } catch {
-        setStatus('Invalid JSON file.');
+        setStatus('JSON文件无效。');
       }
     };
     reader.readAsText(file);
   };
 
   const handleClearData = async () => {
-    if (window.confirm('This will delete ALL your data. This cannot be undone. Are you sure?')) {
+    if (window.confirm('这将删除所有数据，此操作无法撤销。确定要继续吗？')) {
       await client.import({ action: 'clear' });
-      setStatus('All data cleared.');
+      setStatus('所有数据已清除。');
     }
   };
 
   const handleResetApp = async () => {
     if (
-      window.confirm('This will reset the entire app to its initial state. Are you sure?')
+      window.confirm('这将重置整个应用到初始状态。确定要继续吗？')
     ) {
       await client.import({ action: 'reset' });
       window.location.reload();
@@ -110,9 +110,9 @@ export function ExportScreen() {
   return (
     <div className="space-y-6 stagger-children">
       <div>
-        <h2 className="font-display text-3xl tracking-tight">Export & import</h2>
+        <h2 className="font-display text-3xl tracking-tight">导出与导入</h2>
         <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-          Your data belongs to you. Export, import, or manage it here.
+          数据归你所有。在此导出、导入或管理数据。
         </p>
       </div>
 
@@ -129,23 +129,23 @@ export function ExportScreen() {
       {/* Export options */}
       <div className="space-y-3">
         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Export
+          导出
         </h3>
 
         <div className="grid gap-2.5">
           <Button variant="outline" onClick={handleExportFull} className="justify-start h-auto py-3.5 rounded-xl border-border/60 hover:border-border">
             <Download className="mr-3 h-4 w-4 shrink-0 text-primary/70" />
             <div className="text-left">
-              <p className="text-sm font-medium">Download full export</p>
-              <p className="text-xs text-muted-foreground">All data as JSON file</p>
+              <p className="text-sm font-medium">下载完整导出</p>
+              <p className="text-xs text-muted-foreground">所有数据为JSON文件</p>
             </div>
           </Button>
 
           <Button variant="outline" onClick={handleCopyFull} className="justify-start h-auto py-3.5 rounded-xl border-border/60 hover:border-border">
             <Copy className="mr-3 h-4 w-4 shrink-0 text-primary/70" />
             <div className="text-left">
-              <p className="text-sm font-medium">Copy JSON to clipboard</p>
-              <p className="text-xs text-muted-foreground">Full export as text</p>
+              <p className="text-sm font-medium">复制JSON到剪贴板</p>
+              <p className="text-xs text-muted-foreground">完整导出为文本</p>
             </div>
           </Button>
         </div>
@@ -154,7 +154,7 @@ export function ExportScreen() {
       {/* Import */}
       <div className="space-y-3">
         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Import
+          导入
         </h3>
 
         <div className="grid gap-2.5">
@@ -162,8 +162,8 @@ export function ExportScreen() {
             <Button variant="outline" className="justify-start h-auto py-3.5 w-full pointer-events-none rounded-xl border-border/60">
               <Upload className="mr-3 h-4 w-4 shrink-0 text-primary/70" />
               <div className="text-left">
-                <p className="text-sm font-medium">Import from file</p>
-                <p className="text-xs text-muted-foreground">Upload a JSON export file</p>
+                <p className="text-sm font-medium">从文件导入</p>
+                <p className="text-xs text-muted-foreground">上传JSON导出文件</p>
               </div>
             </Button>
             <input
@@ -181,8 +181,8 @@ export function ExportScreen() {
           >
             <FileJson className="mr-3 h-4 w-4 shrink-0 text-primary/70" />
             <div className="text-left">
-              <p className="text-sm font-medium">Import from text</p>
-              <p className="text-xs text-muted-foreground">Paste JSON directly</p>
+              <p className="text-sm font-medium">从文本导入</p>
+              <p className="text-xs text-muted-foreground">直接粘贴JSON</p>
             </div>
           </Button>
         </div>
@@ -190,7 +190,7 @@ export function ExportScreen() {
         {importing && (
           <Card className="shadow-sm animate-fade-in">
             <CardContent className="p-4 space-y-3">
-              <Label htmlFor="importJson">Paste your JSON export:</Label>
+              <Label htmlFor="importJson">粘贴你的JSON导出：</Label>
               <Textarea
                 id="importJson"
                 value={importText}
@@ -201,7 +201,7 @@ export function ExportScreen() {
               />
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleImport} disabled={!importText.trim()} className="rounded-lg">
-                  Import
+                  导入
                 </Button>
                 <Button
                   size="sm"
@@ -212,7 +212,7 @@ export function ExportScreen() {
                   }}
                   className="rounded-lg"
                 >
-                  Cancel
+                  取消
                 </Button>
               </div>
             </CardContent>
@@ -223,7 +223,7 @@ export function ExportScreen() {
       {/* Data management */}
       <div className="space-y-3">
         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Data management
+          数据管理
         </h3>
 
         <div className="grid gap-2.5">
@@ -234,8 +234,8 @@ export function ExportScreen() {
           >
             <Trash2 className="mr-3 h-4 w-4 shrink-0 text-red-500/70" />
             <div className="text-left">
-              <p className="text-sm font-medium text-red-600 dark:text-red-400">Clear all data</p>
-              <p className="text-xs text-muted-foreground">Delete logs, keep settings</p>
+              <p className="text-sm font-medium text-red-600 dark:text-red-400">清除所有数据</p>
+              <p className="text-xs text-muted-foreground">删除记录，保留设置</p>
             </div>
           </Button>
 
@@ -246,8 +246,8 @@ export function ExportScreen() {
           >
             <AlertTriangle className="mr-3 h-4 w-4 shrink-0 text-red-500/70" />
             <div className="text-left">
-              <p className="text-sm font-medium text-red-600 dark:text-red-400">Reset entire app</p>
-              <p className="text-xs text-muted-foreground">Back to initial state</p>
+              <p className="text-sm font-medium text-red-600 dark:text-red-400">重置整个应用</p>
+              <p className="text-xs text-muted-foreground">恢复初始状态</p>
             </div>
           </Button>
         </div>
@@ -256,7 +256,7 @@ export function ExportScreen() {
       <div className="flex items-center justify-center gap-2 py-3">
         <Activity className="h-3 w-3 text-primary/40" />
         <p className="text-center text-xs text-muted-foreground italic">
-          Your data, your rules. Export before clearing.
+          数据归你，规则由你。清除前请先导出。
         </p>
         <Activity className="h-3 w-3 text-primary/40" />
       </div>
