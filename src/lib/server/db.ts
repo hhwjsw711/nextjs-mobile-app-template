@@ -1,83 +1,99 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import fs from 'fs';
+import { createClient, type Client } from '@libsql/client';
 
-// Store data in a persistent location on this device
-const DATA_DIR = path.join(process.cwd(), 'data');
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
+let _db: Client | null = null;
+let _initialized = false;
 
-const DB_PATH = path.join(DATA_DIR, 'app.db');
-
-let _db: Database.Database | null = null;
-
-export function getDb(): Database.Database {
+export function getDb(): Client {
   if (!_db) {
-    _db = new Database(DB_PATH);
-    _db.pragma('journal_mode = WAL');
-    _db.pragma('foreign_keys = ON');
-    migrate(_db);
+    const url = process.env.TURSO_DATABASE_URL;
+    const authToken = process.env.TURSO_AUTH_TOKEN;
+
+    if (!url) {
+      throw new Error('TURSO_DATABASE_URL environment variable is required. See .env.example');
+    }
+
+    _db = createClient({
+      url,
+      authToken,
+    });
   }
   return _db;
 }
 
-function migrate(db: Database.Database) {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS profile (
-      id TEXT PRIMARY KEY DEFAULT 'default',
-      wake_time TEXT NOT NULL DEFAULT '07:00',
-      timezone TEXT NOT NULL DEFAULT 'America/Los_Angeles',
-      preferred_time TEXT NOT NULL DEFAULT '07:00',
-      rest_days TEXT NOT NULL DEFAULT '["sunday"]',
-      goals TEXT NOT NULL DEFAULT '[]',
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
+export async function initDb() {
+  if (_initialized) return;
+  
+  const db = getDb();
+  
+  await db.execute(`CREATE TABLE IF NOT EXISTS profile (
+    user_id TEXT PRIMARY KEY,
+    wake_time TEXT NOT NULL DEFAULT '07:00',
+    timezone TEXT NOT NULL DEFAULT 'America/Los_Angeles',
+    preferred_time TEXT NOT NULL DEFAULT '07:00',
+    rest_days TEXT NOT NULL DEFAULT '["sunday"]',
+    goals TEXT NOT NULL DEFAULT '[]',
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`);
 
-    CREATE TABLE IF NOT EXISTS schedule (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      type TEXT NOT NULL,
-      time TEXT NOT NULL,
-      enabled INTEGER NOT NULL DEFAULT 1
-    );
+  await db.execute(`CREATE TABLE IF NOT EXISTS schedule (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    type TEXT NOT NULL,
+    time TEXT NOT NULL,
+    enabled INTEGER NOT NULL DEFAULT 1
+  )`);
+  
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_schedule_user_id ON schedule(user_id)`);
 
-    CREATE TABLE IF NOT EXISTS templates (
-      id TEXT PRIMARY KEY,
-      category TEXT NOT NULL,
-      name TEXT NOT NULL,
-      muscle_groups TEXT NOT NULL DEFAULT '[]',
-      is_default INTEGER NOT NULL DEFAULT 0
-    );
+  await db.execute(`CREATE TABLE IF NOT EXISTS templates (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    category TEXT NOT NULL,
+    name TEXT NOT NULL,
+    muscle_groups TEXT NOT NULL DEFAULT '[]',
+    is_default INTEGER NOT NULL DEFAULT 0
+  )`);
+  
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_templates_user_id ON templates(user_id)`);
 
-    CREATE TABLE IF NOT EXISTS events (
-      id TEXT PRIMARY KEY,
-      timestamp TEXT NOT NULL,
-      local_date TEXT NOT NULL,
-      local_time TEXT NOT NULL,
-      type TEXT NOT NULL,
-      data TEXT NOT NULL DEFAULT '{}'
-    );
+  await db.execute(`CREATE TABLE IF NOT EXISTS events (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    local_date TEXT NOT NULL,
+    local_time TEXT NOT NULL,
+    type TEXT NOT NULL,
+    data TEXT NOT NULL DEFAULT '{}'
+  )`);
 
-    CREATE INDEX IF NOT EXISTS idx_events_local_date ON events(local_date);
-    CREATE INDEX IF NOT EXISTS idx_events_type ON events(type);
-    CREATE INDEX IF NOT EXISTS idx_events_type_date ON events(type, local_date);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id)`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_events_local_date ON events(local_date)`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_events_type ON events(type)`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_events_type_date ON events(type, local_date)`);
 
-    CREATE TABLE IF NOT EXISTS goals (
-      id TEXT PRIMARY KEY,
-      description TEXT NOT NULL,
-      start_date TEXT NOT NULL,
-      end_date TEXT NOT NULL,
-      active INTEGER NOT NULL DEFAULT 1,
-      outcome TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
+  await db.execute(`CREATE TABLE IF NOT EXISTS goals (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    description TEXT NOT NULL,
+    start_date TEXT NOT NULL,
+    end_date TEXT NOT NULL,
+    active INTEGER NOT NULL DEFAULT 1,
+    outcome TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`);
+  
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_goals_user_id ON goals(user_id)`);
 
-    CREATE TABLE IF NOT EXISTS weekly_reviews (
-      id TEXT PRIMARY KEY,
-      week_start TEXT NOT NULL,
-      week_end TEXT NOT NULL,
-      data TEXT NOT NULL DEFAULT '{}'
-    );
-  `);
+  await db.execute(`CREATE TABLE IF NOT EXISTS weekly_reviews (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    week_start TEXT NOT NULL,
+    week_end TEXT NOT NULL,
+    data TEXT NOT NULL DEFAULT '{}'
+  )`);
+  
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_weekly_reviews_user_id ON weekly_reviews(user_id)`);
+  
+  _initialized = true;
 }

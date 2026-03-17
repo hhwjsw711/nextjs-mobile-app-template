@@ -2,7 +2,7 @@
 
 A boilerplate for building native-feeling apps with Next.js 16. Ships as a workout tracker; swap in your own domain.
 
-**Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · shadcn/ui · oRPC · TanStack Query · SQLite (better-sqlite3) · PWA
+**Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · shadcn/ui · oRPC · TanStack Query · Turso (libSQL) · Clerk Auth · PWA
 
 ---
 
@@ -198,10 +198,26 @@ src/
 
 ## Data layer
 
-- **Database**: SQLite via `better-sqlite3`, stored at `data/app.db`. WAL mode. Auto-migrates on first access.
+- **Database**: Turso (libSQL edge database). Set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` environment variables.
+- **Auth**: Clerk for user authentication. Data is isolated per user.
 - **API**: oRPC with Zod validation. All calls go through `/rpc/` — a single Next.js catch-all route.
 - **Client state**: TanStack Query. Hooks in `src/hooks/` wrap oRPC calls with optimistic updates and cache invalidation.
-- **No auth**: single-user, device-local. The profile table has one row (id = `'default'`).
+
+### Setup Turso
+
+1. Install Turso CLI: `curl -sSfL https://get.tur.so/install.sh | bash`
+2. Login: `turso auth login`
+3. Create database: `turso db create myapp`
+4. Get URL: `turso db show myapp`
+5. Create token: `turso db tokens create myapp`
+6. Set environment variables in Vercel or `.env.local`
+
+### Setup Clerk
+
+1. Sign up at [clerk.com](https://clerk.com) (free tier available)
+2. Create a new application
+3. Copy `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`
+4. Set environment variables in Vercel or `.env.local`
 
 ---
 

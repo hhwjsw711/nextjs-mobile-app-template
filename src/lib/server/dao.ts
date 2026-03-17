@@ -1,4 +1,4 @@
-import { getDb } from './db';
+import { getDb, initDb } from './db';
 import type {
   Profile,
   ScheduleSlot,
@@ -11,84 +11,102 @@ import { DEFAULT_PROFILE, DEFAULT_SCHEDULE, DEFAULT_TEMPLATES } from '../default
 
 // ─── Profile ──────────────────────────────────────────────────────
 
-export function getProfile(): Profile {
+export async function getProfile(userId: string): Promise<Profile> {
+  await initDb();
   const db = getDb();
-  const row = db.prepare('SELECT * FROM profile WHERE id = ?').get('default') as any;
+  const result = await db.execute({
+    sql: 'SELECT * FROM profile WHERE user_id = ?',
+    args: [userId],
+  });
+  const row = result.rows[0] as any;
   if (!row) {
-    insertProfile(DEFAULT_PROFILE);
-    return DEFAULT_PROFILE;
+    await insertProfile(userId, DEFAULT_PROFILE);
+    return { ...DEFAULT_PROFILE, id: userId };
   }
   return {
-    id: row.id,
-    wakeTime: row.wake_time,
-    timezone: row.timezone,
-    preferredTime: row.preferred_time,
-    restDays: JSON.parse(row.rest_days),
-    goals: JSON.parse(row.goals),
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    id: row.user_id as string,
+    wakeTime: row.wake_time as string,
+    timezone: row.timezone as string,
+    preferredTime: row.preferred_time as string,
+    restDays: JSON.parse(row.rest_days as string),
+    goals: JSON.parse(row.goals as string),
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
   };
 }
 
-function insertProfile(p: Profile) {
+async function insertProfile(userId: string, p: Profile) {
   const db = getDb();
-  db.prepare(`
-    INSERT OR REPLACE INTO profile (id, wake_time, timezone, preferred_time, rest_days, goals, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    p.id,
-    p.wakeTime,
-    p.timezone,
-    p.preferredTime,
-    JSON.stringify(p.restDays),
-    JSON.stringify(p.goals),
-    p.createdAt,
-    p.updatedAt,
-  );
+  await db.execute({
+    sql: `INSERT OR REPLACE INTO profile (user_id, wake_time, timezone, preferred_time, rest_days, goals, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      userId,
+      p.wakeTime,
+      p.timezone,
+      p.preferredTime,
+      JSON.stringify(p.restDays),
+      JSON.stringify(p.goals),
+      p.createdAt,
+      p.updatedAt,
+    ],
+  });
 }
 
-export function updateProfile(updates: Partial<Profile>): Profile {
-  const current = getProfile();
-  const merged = { ...current, ...updates, id: 'default', updatedAt: new Date().toISOString() };
-  insertProfile(merged);
+export async function updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile> {
+  const current = await getProfile(userId);
+  const merged = { ...current, ...updates, id: userId, updatedAt: new Date().toISOString() };
+  await insertProfile(userId, merged);
   return merged;
 }
 
 // ─── Schedule ─────────────────────────────────────────────────────
 
-export function getSchedule(): ScheduleSlot[] {
+export async function getSchedule(userId: string): Promise<ScheduleSlot[]> {
+  await initDb();
   const db = getDb();
-  const rows = db.prepare('SELECT * FROM schedule ORDER BY id').all() as any[];
+  const result = await db.execute({
+    sql: 'SELECT * FROM schedule WHERE user_id = ? ORDER BY id',
+    args: [userId],
+  });
+  const rows = result.rows;
   if (rows.length === 0) {
-    initSchedule();
+    await initSchedule(userId);
     return DEFAULT_SCHEDULE;
   }
   return rows.map((r) => ({
-    type: r.type,
-    time: r.time,
+    type: r.type as string,
+    time: r.time as string,
     enabled: !!r.enabled,
   }));
 }
 
-export function initSchedule() {
+export async function initSchedule(userId: string) {
   const db = getDb();
-  const count = (db.prepare('SELECT COUNT(*) as c FROM schedule').get() as any).c;
+  const countResult = await db.execute({
+    sql: 'SELECT COUNT(*) as c FROM schedule WHERE user_id = ?',
+    args: [userId],
+  });
+  const count = (countResult.rows[0] as any).c;
   if (count === 0) {
-    const insert = db.prepare('INSERT INTO schedule (type, time, enabled) VALUES (?, ?, ?)');
-    const tx = db.transaction(() => {
-      for (const s of DEFAULT_SCHEDULE) {
-        insert.run(s.type, s.time, s.enabled ? 1 : 0);
-      }
-    });
-    tx();
+    for (const s of DEFAULT_SCHEDULE) {
+      await db.execute({
+        sql: 'INSERT INTO schedule (user_id, type, time, enabled) VALUES (?, ?, ?, ?)',
+        args: [userId, s.type, s.time, s.enabled ? 1 : 0],
+      });
+    }
   }
 }
 
-export function updateScheduleSlot(index: number, updates: Partial<ScheduleSlot>) {
+export async function updateScheduleSlot(userId: string, index: number, updates: Partial<ScheduleSlot>) {
   const db = getDb();
-  const rows = db.prepare('SELECT id FROM schedule ORDER BY id').all() as any[];
+  const result = await db.execute({
+    sql: 'SELECT id FROM schedule WHERE user_id = ? ORDER BY id',
+    args: [userId],
+  });
+  const rows = result.rows;
   if (index < 0 || index >= rows.length) return;
-  const rowId = rows[index].id;
+  const rowId = (rows[index] as any).id;
 
   const sets: string[] = [];
   const vals: any[] = [];
@@ -98,187 +116,232 @@ export function updateScheduleSlot(index: number, updates: Partial<ScheduleSlot>
 
   if (sets.length > 0) {
     vals.push(rowId);
-    db.prepare(`UPDATE schedule SET ${sets.join(', ')} WHERE id = ?`).run(...vals);
+    await db.execute({
+      sql: `UPDATE schedule SET ${sets.join(', ')} WHERE id = ?`,
+      args: vals,
+    });
   }
 }
 
-export function resetSchedule() {
+export async function resetSchedule(userId: string) {
   const db = getDb();
-  db.prepare('DELETE FROM schedule').run();
-  initSchedule();
+  await db.execute({
+    sql: 'DELETE FROM schedule WHERE user_id = ?',
+    args: [userId],
+  });
+  await initSchedule(userId);
 }
 
 // ─── Templates ────────────────────────────────────────────────────
 
-export function getTemplates(): WorkoutTemplate[] {
+export async function getTemplates(userId: string): Promise<WorkoutTemplate[]> {
+  await initDb();
   const db = getDb();
-  const rows = db.prepare('SELECT * FROM templates').all() as any[];
+  const result = await db.execute({
+    sql: 'SELECT * FROM templates WHERE user_id = ?',
+    args: [userId],
+  });
+  const rows = result.rows;
   if (rows.length === 0) {
-    initTemplates();
+    await initTemplates(userId);
     return DEFAULT_TEMPLATES;
   }
   return rows.map((r) => ({
-    id: r.id,
-    category: r.category,
-    name: r.name,
-    muscleGroups: JSON.parse(r.muscle_groups),
+    id: r.id as string,
+    category: r.category as import('../types').WorkoutCategory,
+    name: r.name as string,
+    muscleGroups: JSON.parse(r.muscle_groups as string),
     isDefault: !!r.is_default,
   }));
 }
 
-export function initTemplates() {
+export async function initTemplates(userId: string) {
   const db = getDb();
-  const count = (db.prepare('SELECT COUNT(*) as c FROM templates').get() as any).c;
+  const countResult = await db.execute({
+    sql: 'SELECT COUNT(*) as c FROM templates WHERE user_id = ?',
+    args: [userId],
+  });
+  const count = (countResult.rows[0] as any).c;
   if (count === 0) {
-    const insert = db.prepare('INSERT INTO templates (id, category, name, muscle_groups, is_default) VALUES (?, ?, ?, ?, ?)');
-    const tx = db.transaction(() => {
-      for (const t of DEFAULT_TEMPLATES) {
-        insert.run(t.id, t.category, t.name, JSON.stringify(t.muscleGroups), t.isDefault ? 1 : 0);
-      }
-    });
-    tx();
+    for (const t of DEFAULT_TEMPLATES) {
+      await db.execute({
+        sql: 'INSERT INTO templates (id, user_id, category, name, muscle_groups, is_default) VALUES (?, ?, ?, ?, ?, ?)',
+        args: [t.id, userId, t.category, t.name, JSON.stringify(t.muscleGroups), t.isDefault ? 1 : 0],
+      });
+    }
   }
 }
 
-export function addTemplate(t: WorkoutTemplate) {
+export async function addTemplate(userId: string, t: WorkoutTemplate) {
   const db = getDb();
-  db.prepare('INSERT INTO templates (id, category, name, muscle_groups, is_default) VALUES (?, ?, ?, ?, ?)').run(
-    t.id, t.category, t.name, JSON.stringify(t.muscleGroups), t.isDefault ? 1 : 0
-  );
+  await db.execute({
+    sql: 'INSERT INTO templates (id, user_id, category, name, muscle_groups, is_default) VALUES (?, ?, ?, ?, ?, ?)',
+    args: [t.id, userId, t.category, t.name, JSON.stringify(t.muscleGroups), t.isDefault ? 1 : 0],
+  });
 }
 
-export function deleteTemplate(id: string) {
+export async function deleteTemplate(userId: string, id: string) {
   const db = getDb();
-  db.prepare('DELETE FROM templates WHERE id = ?').run(id);
+  await db.execute({
+    sql: 'DELETE FROM templates WHERE id = ? AND user_id = ?',
+    args: [id, userId],
+  });
 }
 
 // ─── Events ───────────────────────────────────────────────────────
 
-export function getEventsByDate(date: string): AppEvent[] {
+export async function getEventsByDate(userId: string, date: string): Promise<AppEvent[]> {
+  await initDb();
   const db = getDb();
-  const rows = db.prepare('SELECT * FROM events WHERE local_date = ? ORDER BY timestamp').all(date) as any[];
-  return rows.map(rowToEvent);
+  const result = await db.execute({
+    sql: 'SELECT * FROM events WHERE user_id = ? AND local_date = ? ORDER BY timestamp',
+    args: [userId, date],
+  });
+  return result.rows.map(rowToEvent);
 }
 
-export function getAllEvents(): AppEvent[] {
+export async function getAllEvents(userId: string): Promise<AppEvent[]> {
+  await initDb();
   const db = getDb();
-  const rows = db.prepare('SELECT * FROM events ORDER BY timestamp').all() as any[];
-  return rows.map(rowToEvent);
+  const result = await db.execute({
+    sql: 'SELECT * FROM events WHERE user_id = ? ORDER BY timestamp',
+    args: [userId],
+  });
+  return result.rows.map(rowToEvent);
 }
 
-export function addEvent(event: AppEvent) {
+export async function addEvent(userId: string, event: AppEvent) {
   const db = getDb();
   const { id, timestamp, localDate, localTime, type, ...rest } = event;
-  db.prepare('INSERT INTO events (id, timestamp, local_date, local_time, type, data) VALUES (?, ?, ?, ?, ?, ?)').run(
-    id, timestamp, localDate, localTime, type, JSON.stringify(rest)
-  );
+  await db.execute({
+    sql: 'INSERT INTO events (id, user_id, timestamp, local_date, local_time, type, data) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    args: [id, userId, timestamp, localDate, localTime, type, JSON.stringify(rest)],
+  });
 }
 
-export function deleteEvent(id: string) {
+export async function deleteEvent(userId: string, id: string) {
   const db = getDb();
-  db.prepare('DELETE FROM events WHERE id = ?').run(id);
+  await db.execute({
+    sql: 'DELETE FROM events WHERE id = ? AND user_id = ?',
+    args: [id, userId],
+  });
 }
 
 function rowToEvent(row: any): AppEvent {
-  const data = JSON.parse(row.data);
+  const data = JSON.parse(row.data as string);
   return {
-    id: row.id,
-    timestamp: row.timestamp,
-    localDate: row.local_date,
-    localTime: row.local_time,
-    type: row.type,
+    id: row.id as string,
+    timestamp: row.timestamp as string,
+    localDate: row.local_date as string,
+    localTime: row.local_time as string,
+    type: row.type as string,
     ...data,
   };
 }
 
 // ─── Goals ────────────────────────────────────────────────────────
 
-export function getGoals(): Goal[] {
+export async function getGoals(userId: string): Promise<Goal[]> {
+  await initDb();
   const db = getDb();
-  const rows = db.prepare('SELECT * FROM goals ORDER BY created_at DESC').all() as any[];
-  return rows.map((r) => ({
-    id: r.id,
-    description: r.description,
-    startDate: r.start_date,
-    endDate: r.end_date,
+  const result = await db.execute({
+    sql: 'SELECT * FROM goals WHERE user_id = ? ORDER BY created_at DESC',
+    args: [userId],
+  });
+  return result.rows.map((r) => ({
+    id: r.id as string,
+    description: r.description as string,
+    startDate: r.start_date as string,
+    endDate: r.end_date as string,
     active: !!r.active,
-    outcome: r.outcome || undefined,
-    createdAt: r.created_at,
+    outcome: (r.outcome as string) || undefined,
+    createdAt: r.created_at as string,
   }));
 }
 
-export function addGoal(g: Goal) {
+export async function addGoal(userId: string, g: Goal) {
   const db = getDb();
-  db.prepare('INSERT INTO goals (id, description, start_date, end_date, active, outcome, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
-    g.id, g.description, g.startDate, g.endDate, g.active ? 1 : 0, g.outcome || null, g.createdAt
-  );
+  await db.execute({
+    sql: 'INSERT INTO goals (id, user_id, description, start_date, end_date, active, outcome, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    args: [g.id, userId, g.description, g.startDate, g.endDate, g.active ? 1 : 0, g.outcome || null, g.createdAt],
+  });
 }
 
-export function updateGoal(id: string, updates: { active?: boolean; outcome?: string }) {
+export async function updateGoal(userId: string, id: string, updates: { active?: boolean; outcome?: string }) {
   const db = getDb();
   const sets: string[] = [];
   const vals: any[] = [];
   if (updates.active !== undefined) { sets.push('active = ?'); vals.push(updates.active ? 1 : 0); }
   if (updates.outcome !== undefined) { sets.push('outcome = ?'); vals.push(updates.outcome); }
   if (sets.length > 0) {
-    vals.push(id);
-    db.prepare(`UPDATE goals SET ${sets.join(', ')} WHERE id = ?`).run(...vals);
+    vals.push(id, userId);
+    await db.execute({
+      sql: `UPDATE goals SET ${sets.join(', ')} WHERE id = ? AND user_id = ?`,
+      args: vals,
+    });
   }
 }
 
-export function deleteGoal(id: string) {
+export async function deleteGoal(userId: string, id: string) {
   const db = getDb();
-  db.prepare('DELETE FROM goals WHERE id = ?').run(id);
+  await db.execute({
+    sql: 'DELETE FROM goals WHERE id = ? AND user_id = ?',
+    args: [id, userId],
+  });
 }
 
 // ─── Weekly Reviews ───────────────────────────────────────────────
 
-export function getWeeklyReviews(): WeeklyReview[] {
+export async function getWeeklyReviews(userId: string): Promise<WeeklyReview[]> {
+  await initDb();
   const db = getDb();
-  const rows = db.prepare('SELECT * FROM weekly_reviews ORDER BY week_start DESC').all() as any[];
-  return rows.map((r) => ({
-    id: r.id,
-    weekStart: r.week_start,
-    weekEnd: r.week_end,
-    ...JSON.parse(r.data),
+  const result = await db.execute({
+    sql: 'SELECT * FROM weekly_reviews WHERE user_id = ? ORDER BY week_start DESC',
+    args: [userId],
+  });
+  return result.rows.map((r) => ({
+    id: r.id as string,
+    weekStart: r.week_start as string,
+    weekEnd: r.week_end as string,
+    ...JSON.parse(r.data as string),
   }));
 }
 
-export function upsertWeeklyReview(review: WeeklyReview) {
+export async function upsertWeeklyReview(userId: string, review: WeeklyReview) {
   const db = getDb();
   const { id, weekStart, weekEnd, ...data } = review;
-  db.prepare('INSERT OR REPLACE INTO weekly_reviews (id, week_start, week_end, data) VALUES (?, ?, ?, ?)').run(
-    id, weekStart, weekEnd, JSON.stringify(data)
-  );
+  await db.execute({
+    sql: 'INSERT OR REPLACE INTO weekly_reviews (id, user_id, week_start, week_end, data) VALUES (?, ?, ?, ?, ?)',
+    args: [id, userId, weekStart, weekEnd, JSON.stringify(data)],
+  });
 }
 
 // ─── Bulk import ──────────────────────────────────────────────────
 
-export function bulkImportEvents(events: AppEvent[]) {
+export async function bulkImportEvents(userId: string, events: AppEvent[]) {
   const db = getDb();
-  const insert = db.prepare('INSERT OR REPLACE INTO events (id, timestamp, local_date, local_time, type, data) VALUES (?, ?, ?, ?, ?, ?)');
-  const tx = db.transaction(() => {
-    for (const event of events) {
-      const { id, timestamp, localDate, localTime, type, ...rest } = event;
-      insert.run(id, timestamp, localDate, localTime, type, JSON.stringify(rest));
-    }
-  });
-  tx();
+  for (const event of events) {
+    const { id, timestamp, localDate, localTime, type, ...rest } = event;
+    await db.execute({
+      sql: 'INSERT OR REPLACE INTO events (id, user_id, timestamp, local_date, local_time, type, data) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      args: [id, userId, timestamp, localDate, localTime, type, JSON.stringify(rest)],
+    });
+  }
 }
 
-export function clearAllEvents() {
+export async function clearAllEvents(userId: string) {
   const db = getDb();
-  db.prepare('DELETE FROM events').run();
-  db.prepare('DELETE FROM goals').run();
-  db.prepare('DELETE FROM weekly_reviews').run();
+  await db.execute({ sql: 'DELETE FROM events WHERE user_id = ?', args: [userId] });
+  await db.execute({ sql: 'DELETE FROM goals WHERE user_id = ?', args: [userId] });
+  await db.execute({ sql: 'DELETE FROM weekly_reviews WHERE user_id = ?', args: [userId] });
 }
 
-export function resetAll() {
+export async function resetAll(userId: string) {
   const db = getDb();
-  db.prepare('DELETE FROM profile').run();
-  db.prepare('DELETE FROM schedule').run();
-  db.prepare('DELETE FROM templates').run();
-  db.prepare('DELETE FROM events').run();
-  db.prepare('DELETE FROM goals').run();
-  db.prepare('DELETE FROM weekly_reviews').run();
+  await db.execute({ sql: 'DELETE FROM profile WHERE user_id = ?', args: [userId] });
+  await db.execute({ sql: 'DELETE FROM schedule WHERE user_id = ?', args: [userId] });
+  await db.execute({ sql: 'DELETE FROM templates WHERE user_id = ?', args: [userId] });
+  await db.execute({ sql: 'DELETE FROM events WHERE user_id = ?', args: [userId] });
+  await db.execute({ sql: 'DELETE FROM goals WHERE user_id = ?', args: [userId] });
+  await db.execute({ sql: 'DELETE FROM weekly_reviews WHERE user_id = ?', args: [userId] });
 }

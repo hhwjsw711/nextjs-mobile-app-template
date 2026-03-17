@@ -39,9 +39,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# data
-/data/*.db
-/data/*.db-shm
-/data/*.db-wal
+# local database (no longer used, Turso instead)
+# /data/
 
 opencode.json
+# clerk configuration (can include secrets)
+/.clerk/

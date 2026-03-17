@@ -1,6 +1,20 @@
 import { os } from '@orpc/server';
 import * as z from 'zod';
 import * as dao from './dao';
+import { auth } from '@clerk/nextjs/server';
+
+// ─── Context middleware ───────────────────────────────────────────
+
+const withAuth = os
+  .middleware(async ({ context, next }) => {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error('Unauthorized');
+    }
+    return next({ context: { ...context, userId } });
+  });
+
+const protectedProcedure = os.use(withAuth);
 
 // ─── Zod Schemas ──────────────────────────────────────────────────
 
@@ -83,143 +97,143 @@ const GoalSchema = z.object({
 // ─── Procedures ───────────────────────────────────────────────────
 
 // Profile
-const getProfile = os
-  .handler(async () => {
-    return dao.getProfile();
+const getProfile = protectedProcedure
+  .handler(async ({ context }) => {
+    return dao.getProfile(context.userId);
   });
 
-const updateProfile = os
+const updateProfile = protectedProcedure
   .input(ProfileSchema.partial().omit({ id: true }))
-  .handler(async ({ input }) => {
-    return dao.updateProfile(input);
+  .handler(async ({ context, input }) => {
+    return dao.updateProfile(context.userId, input);
   });
 
 // Schedule
-const getSchedule = os
-  .handler(async () => {
-    return dao.getSchedule();
+const getSchedule = protectedProcedure
+  .handler(async ({ context }) => {
+    return dao.getSchedule(context.userId);
   });
 
-const updateScheduleSlot = os
+const updateScheduleSlot = protectedProcedure
   .input(z.object({
     index: z.number(),
     updates: ScheduleSlotSchema.partial(),
   }))
-  .handler(async ({ input }) => {
-    dao.updateScheduleSlot(input.index, input.updates);
-    return dao.getSchedule();
+  .handler(async ({ context, input }) => {
+    await dao.updateScheduleSlot(context.userId, input.index, input.updates);
+    return dao.getSchedule(context.userId);
   });
 
-const initSchedule = os
-  .handler(async () => {
-    dao.initSchedule();
-    return dao.getSchedule();
+const initSchedule = protectedProcedure
+  .handler(async ({ context }) => {
+    await dao.initSchedule(context.userId);
+    return dao.getSchedule(context.userId);
   });
 
-const resetSchedule = os
-  .handler(async () => {
-    dao.resetSchedule();
-    return dao.getSchedule();
+const resetSchedule = protectedProcedure
+  .handler(async ({ context }) => {
+    await dao.resetSchedule(context.userId);
+    return dao.getSchedule(context.userId);
   });
 
 // Templates
-const getTemplates = os
-  .handler(async () => {
-    return dao.getTemplates();
+const getTemplates = protectedProcedure
+  .handler(async ({ context }) => {
+    return dao.getTemplates(context.userId);
   });
 
-const addTemplate = os
+const addTemplate = protectedProcedure
   .input(WorkoutTemplateSchema)
-  .handler(async ({ input }) => {
-    dao.addTemplate(input);
-    return dao.getTemplates();
+  .handler(async ({ context, input }) => {
+    await dao.addTemplate(context.userId, input);
+    return dao.getTemplates(context.userId);
   });
 
-const deleteTemplate = os
+const deleteTemplate = protectedProcedure
   .input(z.object({ id: z.string() }))
-  .handler(async ({ input }) => {
-    dao.deleteTemplate(input.id);
-    return dao.getTemplates();
+  .handler(async ({ context, input }) => {
+    await dao.deleteTemplate(context.userId, input.id);
+    return dao.getTemplates(context.userId);
   });
 
-const initTemplates = os
-  .handler(async () => {
-    dao.initTemplates();
-    return dao.getTemplates();
+const initTemplates = protectedProcedure
+  .handler(async ({ context }) => {
+    await dao.initTemplates(context.userId);
+    return dao.getTemplates(context.userId);
   });
 
 // Events
-const getEventsByDate = os
+const getEventsByDate = protectedProcedure
   .input(z.object({ date: z.string() }))
-  .handler(async ({ input }) => {
-    return dao.getEventsByDate(input.date);
+  .handler(async ({ context, input }) => {
+    return dao.getEventsByDate(context.userId, input.date);
   });
 
-const getAllEvents = os
-  .handler(async () => {
-    return dao.getAllEvents();
+const getAllEvents = protectedProcedure
+  .handler(async ({ context }) => {
+    return dao.getAllEvents(context.userId);
   });
 
-const addEvent = os
+const addEvent = protectedProcedure
   .input(AppEventSchema)
-  .handler(async ({ input }) => {
-    dao.addEvent(input);
+  .handler(async ({ context, input }) => {
+    await dao.addEvent(context.userId, input);
     return { ok: true as const };
   });
 
-const deleteEvent = os
+const deleteEvent = protectedProcedure
   .input(z.object({ id: z.string() }))
-  .handler(async ({ input }) => {
-    dao.deleteEvent(input.id);
+  .handler(async ({ context, input }) => {
+    await dao.deleteEvent(context.userId, input.id);
     return { ok: true as const };
   });
 
 // Goals
-const getGoals = os
-  .handler(async () => {
-    return dao.getGoals();
+const getGoals = protectedProcedure
+  .handler(async ({ context }) => {
+    return dao.getGoals(context.userId);
   });
 
-const addGoal = os
+const addGoal = protectedProcedure
   .input(GoalSchema)
-  .handler(async ({ input }) => {
-    dao.addGoal(input);
-    return dao.getGoals();
+  .handler(async ({ context, input }) => {
+    await dao.addGoal(context.userId, input);
+    return dao.getGoals(context.userId);
   });
 
-const updateGoal = os
+const updateGoal = protectedProcedure
   .input(z.object({
     id: z.string(),
     active: z.boolean().optional(),
     outcome: z.string().optional(),
   }))
-  .handler(async ({ input }) => {
+  .handler(async ({ context, input }) => {
     const { id, ...updates } = input;
-    dao.updateGoal(id, updates);
-    return dao.getGoals();
+    await dao.updateGoal(context.userId, id, updates);
+    return dao.getGoals(context.userId);
   });
 
-const deleteGoal = os
+const deleteGoal = protectedProcedure
   .input(z.object({ id: z.string() }))
-  .handler(async ({ input }) => {
-    dao.deleteGoal(input.id);
-    return dao.getGoals();
+  .handler(async ({ context, input }) => {
+    await dao.deleteGoal(context.userId, input.id);
+    return dao.getGoals(context.userId);
   });
 
 // Export
-const exportData = os
+const exportData = protectedProcedure
   .input(z.object({
     days: z.number().optional(),
   }).optional())
-  .handler(async ({ input }) => {
+  .handler(async ({ context, input }) => {
     const { format: fmtFn, subDays } = await import('date-fns');
 
-    const profile = dao.getProfile();
-    const schedule = dao.getSchedule();
-    const templates = dao.getTemplates();
-    let events = dao.getAllEvents();
-    const goals = dao.getGoals();
-    const weeklyReviews = dao.getWeeklyReviews();
+    const profile = await dao.getProfile(context.userId);
+    const schedule = await dao.getSchedule(context.userId);
+    const templates = await dao.getTemplates(context.userId);
+    let events = await dao.getAllEvents(context.userId);
+    const goals = await dao.getGoals(context.userId);
+    const weeklyReviews = await dao.getWeeklyReviews(context.userId);
 
     if (input?.days) {
       const cutoff = fmtFn(subDays(new Date(), input.days), 'yyyy-MM-dd');
@@ -242,65 +256,68 @@ const exportData = os
   });
 
 // Import
-const importData = os
+const importData = protectedProcedure
   .input(z.object({
     action: z.enum(['clear', 'reset', 'import']).optional(),
     data: z.any().optional(),
   }))
-  .handler(async ({ input }) => {
+  .handler(async ({ context, input }) => {
     if (input.action === 'clear') {
-      dao.clearAllEvents();
+      await dao.clearAllEvents(context.userId);
       return { ok: true as const, message: '所有记录已清除。' };
     }
 
     if (input.action === 'reset') {
-      dao.resetAll();
+      await dao.resetAll(context.userId);
       return { ok: true as const, message: '应用已重置。' };
     }
 
-    // Import data
     const data = input.data;
     if (!data?.schemaVersion || !data?.events) {
       throw new Error('导出格式无效。');
     }
 
     if (data.profile) {
-      dao.updateProfile({ ...data.profile, id: 'default' });
+      await dao.updateProfile(context.userId, { ...data.profile, id: context.userId });
     }
 
     if (data.schedule) {
-      dao.resetSchedule();
+      await dao.resetSchedule(context.userId);
       const { getDb } = await import('./db');
       const db = getDb();
-      db.prepare('DELETE FROM schedule').run();
-      const insert = db.prepare('INSERT INTO schedule (type, time, enabled) VALUES (?, ?, ?)');
       for (const s of data.schedule) {
-        insert.run(s.type, s.time, s.enabled ? 1 : 0);
+        await db.execute({
+          sql: 'INSERT INTO schedule (user_id, type, time, enabled) VALUES (?, ?, ?, ?)',
+          args: [context.userId, s.type, s.time, s.enabled ? 1 : 0],
+        });
       }
     }
 
     if (data.templates) {
       const { getDb } = await import('./db');
       const db = getDb();
-      db.prepare('DELETE FROM templates').run();
+      await db.execute({
+        sql: 'DELETE FROM templates WHERE user_id = ?',
+        args: [context.userId],
+      });
       for (const t of data.templates) {
-        dao.addTemplate(t);
+        await dao.addTemplate(context.userId, t);
       }
     }
 
     if (data.events) {
-      dao.bulkImportEvents(data.events);
+      await dao.bulkImportEvents(context.userId, data.events);
     }
 
     if (data.goals) {
       for (const g of data.goals) {
-        try { dao.addGoal(g); } catch { /* skip duplicates */ }
+        try { await dao.addGoal(context.userId, g); } catch { /* skip duplicates */ }
       }
     }
 
     if (data.weeklyReviews) {
       for (const r of data.weeklyReviews) {
-        dao.upsertWeeklyReview(r);
+        await dao.upsertWeeklyReview(context.userId, r);
       }
     }
 
